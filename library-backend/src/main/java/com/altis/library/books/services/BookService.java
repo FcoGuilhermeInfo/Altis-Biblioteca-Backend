@@ -3,114 +3,81 @@ package com.altis.library.books.services;
 import com.altis.library.books.models.dtos.BookRequestDTO;
 import com.altis.library.books.models.dtos.BookResponseDTO;
 import com.altis.library.books.models.dtos.BookUpdateDTO;
+import com.altis.library.books.mappers.BookMapper;
 import com.altis.library.books.models.entities.BookEntity;
 import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.publishers.models.entities.Publisher;
-import com.altis.library.publishers.repositories.PublisherRepository;
+import com.altis.library.publishers.services.PublisherService;
+import com.altis.library.shared.exception.ConflictException;
+import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final PublisherRepository publisherRepository;
+    private final PublisherService publisherService;
+    private final BookMapper mapper;
 
-    public BookService(BookRepository bookRepository, PublisherRepository publisherRepository) {
+    public BookService(BookRepository bookRepository, PublisherService publisherService, BookMapper mapper) {
         this.bookRepository = bookRepository;
-        this.publisherRepository = publisherRepository;
+        this.publisherService = publisherService;
+        this.mapper = mapper;
     }
 
     //CREATE
     @Transactional
     public BookResponseDTO create(BookRequestDTO dto){
-        BookEntity bookEntity = new BookEntity();
-
-        Publisher publisher = publisherRepository.findByNameIgnoreCase(dto.publisherName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Editora não encontrada"));
+        Publisher publisher = publisherService.findByName(dto.publisherName());
 
         if (bookRepository.existsByTitleAndAuthorAndReleaseYearAndPublisher_Id(
                 dto.title(), dto.author(), dto.releaseYear(), publisher.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este livro já está cadastrado com esses mesmos dados.");
+            throw new ConflictException("Este livro já está cadastrado com esses mesmos dados.");
         }
 
-        bookEntity.setTitle(dto.title());
-        bookEntity.setAuthor(dto.author());
-        bookEntity.setReleaseYear(dto.releaseYear());
-        bookEntity.setPublisher(publisher);
-        bookEntity.setTotalQuantity(dto.totalQuantity());
-
-        LocalDateTime now = LocalDateTime.now();
-        bookEntity.setCreatedAt(now);
-        bookEntity.setUpdatedAt(now);
-
-        bookEntity.setBorrowedQuantity(0);
+        BookEntity bookEntity = mapper.toEntity(dto, publisher);
 
         BookEntity saved = bookRepository.save(bookEntity);
 
-        return toResponseDTO(saved);
+        return mapper.toResponse(saved);
 
     }
 
     // READ
     public List<BookResponseDTO> findAll(){
-        return bookRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return mapper.toResponseList(bookRepository.findAll());
     }
 
     // READ BY ID
     public BookResponseDTO findById(UUID id){
-        BookEntity bookEntity = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        BookEntity bookEntity = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
 
-        return toResponseDTO(bookEntity);
+        return mapper.toResponse(bookEntity);
     }
 
     // UPDATE
     @Transactional
     public BookResponseDTO update(UUID id, BookUpdateDTO dto){
-        BookEntity bookEntity = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        BookEntity bookEntity = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
 
-        if (dto.title() != null){
-            bookEntity.setTitle(dto.title());
-        }
-        if (dto.author() != null){
-            bookEntity.setAuthor(dto.author());
-        }
-        if (dto.releaseYear() != null){
-            bookEntity.setAuthor(dto.author());
+        if (dto.totalQuantity() != null && dto.totalQuantity() <= 0) {
+            throw new RuntimeException("A quantidade total deve ser maior que zero.");
         }
         if (dto.publisherName() != null) {
-            Publisher publisher = publisherRepository.findByNameIgnoreCase(dto.publisherName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Editora não encontrada"));
+            Publisher publisher = publisherService.findByName(dto.publisherName());
 
             bookEntity.setPublisher(publisher);
         }
-        if (dto.totalQuantity() != null) {
-            if (dto.totalQuantity() <= 0) {
-                throw new RuntimeException("A quantidade total deve ser maior que zero.");
-            }
-            bookEntity.setTotalQuantity(dto.totalQuantity());
-        }
+        mapper.applyUpdate(dto, bookEntity);
+
         BookEntity updated = bookRepository.save(bookEntity);
-        return toResponseDTO(updated);
+        return mapper.toResponse(updated);
     }
 
     // DELETE - EM BREVE
-
-    private BookResponseDTO toResponseDTO(BookEntity bookEntity) {
-        return new BookResponseDTO(
-                bookEntity.getId(),
-                bookEntity.getTitle(),
-                bookEntity.getAuthor(),
-                bookEntity.getReleaseYear(),
-                bookEntity.getPublisher().getName(),
-                bookEntity.getAvailableQuantity()
-        );
-    }
 }

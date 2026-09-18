@@ -2,8 +2,6 @@ package com.altis.library.publishers.controllers;
 
 import com.altis.library.publishers.models.dtos.PublisherRequestDTO;
 import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
-import com.altis.library.publishers.models.dtos.PublisherUpdateDTO;
-import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.services.PublisherService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -26,17 +24,17 @@ public class PublisherController {
     }
 
     @GetMapping
-    public List<Publisher> findAll(){
+    public List<PublisherResponseDTO> findAll(){
         return publisherService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Publisher findById(@PathVariable UUID id){
+    public PublisherResponseDTO findById(@PathVariable UUID id){
         return publisherService.findById(id);
     }
 
     @PatchMapping("/{id}")
-    public PublisherResponseDTO update(@PathVariable UUID id, @Valid @RequestBody PublisherUpdateDTO dto){
+    public PublisherResponseDTO update(@PathVariable UUID id, @Valid @RequestBody PublisherRequestDTO dto){
         return publisherService.update(id, dto);
     }
 
