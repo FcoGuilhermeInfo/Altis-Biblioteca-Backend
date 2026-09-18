@@ -3,7 +3,6 @@ package com.altis.library.users.controllers;
 import com.altis.library.users.models.dtos.UserRequestDTO;
 import com.altis.library.users.models.dtos.UserResponseDTO;
 import com.altis.library.users.models.dtos.UserUpdateDTO;
-import com.altis.library.users.models.entities.User;
 import com.altis.library.users.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

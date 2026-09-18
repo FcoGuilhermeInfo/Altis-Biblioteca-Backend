@@ -1,6 +1,5 @@
 package com.altis.library.users.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +19,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements Serializable {
+public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
