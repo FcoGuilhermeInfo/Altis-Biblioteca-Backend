@@ -6,6 +6,7 @@ import com.altis.library.users.models.dtos.UserUpdateDTO;
 import com.altis.library.users.mappers.UserMapper;
 import com.altis.library.users.repositories.UserRepository;
 import com.altis.library.shared.exception.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserService {
     }
 
     // CREATE
+    @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
         var user = userMapper.toEntity(dto);
         var savedUser = userRepository.save(user);
@@ -45,6 +47,7 @@ public class UserService {
     }
 
     // UPDATE
+    @Transactional
     public UserResponseDTO update(UUID id, UserUpdateDTO dto) {
 
         var user = userRepository.findById(id)
@@ -57,6 +60,7 @@ public class UserService {
     }
 
     // DELETE
+    @Transactional
     public void delete(UUID id) {
 
         var user = userRepository.findById(id)

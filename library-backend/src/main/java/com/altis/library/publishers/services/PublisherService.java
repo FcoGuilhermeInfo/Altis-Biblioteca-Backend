@@ -20,7 +20,7 @@ public class PublisherService {
     private final PublisherRepository publisherRepository;
     private final PublisherMapper publisherMapper;
 
-    public Publisher buscarPorNome(String name) {
+    public Publisher findByName(String name) {
         return publisherRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new ResourceNotFoundException("Publisher", name));
     }
