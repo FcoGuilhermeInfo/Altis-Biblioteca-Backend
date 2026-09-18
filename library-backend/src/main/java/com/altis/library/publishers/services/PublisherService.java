@@ -1,10 +1,12 @@
 package com.altis.library.publishers.services;
 
+import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.publishers.models.dtos.PublisherRequestDTO;
 import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
 import com.altis.library.publishers.models.dtos.PublisherUpdateDTO;
 import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.repositories.PublisherRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,12 +17,14 @@ import java.util.UUID;
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
+    private final BookRepository bookRepository;
 
-    public PublisherService(PublisherRepository publisherRepository) {
-        this.publisherRepository = publisherRepository;
+    public PublisherService(PublisherRepository publisherRepository, BookRepository bookRepository) {
+        this.publisherRepository = publisherRepository; this.bookRepository = bookRepository;
     }
 
     // CREATE
+    @Transactional
     public PublisherResponseDTO create(PublisherRequestDTO dto){
         Publisher publisher = new Publisher();
 
@@ -47,16 +51,19 @@ public class PublisherService {
     }
 
     // READ
+    @Transactional
     public List<Publisher> findAll() {
         return publisherRepository.findAll();
     }
 
     // READ BY ID
+    @Transactional
     public Publisher findById(UUID id){
         return publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
     }
 
     // UPDATE
+    @Transactional
     public PublisherResponseDTO update(UUID id, PublisherUpdateDTO dto){
         Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -87,8 +94,15 @@ public class PublisherService {
         );
     }
 
-//    // DELETE
-//    public PublisherResponseDTO delete(UUID id){
-//
-//    }
+    // DELETE
+    @Transactional
+    public void delete(UUID id){
+        Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Editora não encontrada."));
+
+        if (bookRepository.existsByPublisherId(id)) {
+            throw new RuntimeException("Não é possivel excluir a editora, pois existem livros relacionados a ela.");
+        }
+
+        publisherRepository.delete(publisher);
+    }
 }
