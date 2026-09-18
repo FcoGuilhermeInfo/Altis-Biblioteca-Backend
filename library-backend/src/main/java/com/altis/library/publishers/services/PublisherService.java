@@ -1,107 +1,64 @@
 package com.altis.library.publishers.services;
 
-import com.altis.library.books.repositories.BookRepository;
+import com.altis.library.publishers.mappers.PublisherMapper;
 import com.altis.library.publishers.models.dtos.PublisherRequestDTO;
 import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
-import com.altis.library.publishers.models.dtos.PublisherUpdateDTO;
 import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.repositories.PublisherRepository;
+import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
-    private final BookRepository bookRepository;
+    private final PublisherMapper publisherMapper;
 
-    public PublisherService(PublisherRepository publisherRepository, BookRepository bookRepository) {
-        this.publisherRepository = publisherRepository; this.bookRepository = bookRepository;
+    public Publisher buscarPorNome(String name) {
+        return publisherRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher", name));
     }
 
-    // CREATE
     @Transactional
-    public PublisherResponseDTO create(PublisherRequestDTO dto){
-        Publisher publisher = new Publisher();
+    public PublisherResponseDTO create(PublisherRequestDTO dto) {
+        Publisher publisher = publisherMapper.toEntity(dto);
+        Publisher savedPublisher = publisherRepository.save(publisher);
 
-        publisher.setName(dto.name());
-        publisher.setEmail(dto.email());
-        publisher.setPhone(dto.phone());
-        publisher.setSite(dto.site());
-
-        LocalDateTime now = LocalDateTime.now();
-        publisher.setCreatedAt(now);
-        publisher.setUpdatedAt(now);
-
-        publisherRepository.save(publisher);
-
-        return new PublisherResponseDTO(
-                publisher.getId(),
-                publisher.getName(),
-                publisher.getEmail(),
-                publisher.getPhone(),
-                publisher.getSite(),
-                publisher.getCreatedAt(),
-                publisher.getUpdatedAt()
-        );
+        return publisherMapper.toResponse(savedPublisher);
     }
 
-    // READ
-    @Transactional
-    public List<Publisher> findAll() {
-        return publisherRepository.findAll();
+    public PublisherResponseDTO findById(UUID id) {
+        Publisher publisher = publisherRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher", id));
+
+        return publisherMapper.toResponse(publisher);
     }
 
-    // READ BY ID
-    @Transactional
-    public Publisher findById(UUID id){
-        return publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+    public List<PublisherResponseDTO> findAll() {
+        return publisherMapper.toResponseList(publisherRepository.findAll());
     }
 
-    // UPDATE
     @Transactional
-    public PublisherResponseDTO update(UUID id, PublisherUpdateDTO dto){
-        Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public PublisherResponseDTO update(UUID id, PublisherRequestDTO dto) {
+        Publisher publisher = publisherRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher", id));
 
-        if (dto.name() != null){
-            publisher.setName(dto.name());
-        }
-        if (dto.email() != null){
-            publisher.setEmail(dto.email());
-        }
-        if (dto.phone() != null){
-            publisher.setPhone(dto.phone());
-        }
-        if (dto.site() != null){
-            publisher.setSite(dto.site());
-        }
+        publisherMapper.applyUpdate(dto, publisher);
+        Publisher updatedPublisher = publisherRepository.save(publisher);
 
-        publisher.setUpdatedAt(LocalDateTime.now());
-
-        Publisher updated = publisherRepository.save(publisher);
-        return new PublisherResponseDTO(
-                updated.getId(),
-                updated.getName(),
-                updated.getEmail(),
-                updated.getPhone(),
-                updated.getSite(),
-                updated.getCreatedAt(),
-                updated.getUpdatedAt()
-        );
+        return publisherMapper.toResponse(updatedPublisher);
     }
 
-    // DELETE
     @Transactional
-    public void delete(UUID id){
-        Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException("Editora não encontrada."));
-
-        if (bookRepository.existsByPublisherId(id)) {
-            throw new RuntimeException("Não é possivel excluir a editora, pois existem livros relacionados a ela.");
-        }
+    public void delete(UUID id) {
+        Publisher publisher = publisherRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher", id));
 
         publisherRepository.delete(publisher);
     }
