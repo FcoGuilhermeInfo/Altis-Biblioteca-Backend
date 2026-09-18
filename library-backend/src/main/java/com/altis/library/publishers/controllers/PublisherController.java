@@ -39,4 +39,9 @@ public class PublisherController {
     public PublisherResponseDTO update(@PathVariable UUID id, @Valid @RequestBody PublisherUpdateDTO dto){
         return publisherService.update(id, dto);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable UUID id){
+        publisherService.delete(id);
+    }
 }

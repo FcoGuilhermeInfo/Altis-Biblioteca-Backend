@@ -3,7 +3,7 @@ package com.altis.library.books.services;
 import com.altis.library.books.models.dtos.BookRequestDTO;
 import com.altis.library.books.models.dtos.BookResponseDTO;
 import com.altis.library.books.models.dtos.BookUpdateDTO;
-import com.altis.library.books.models.entities.Book;
+import com.altis.library.books.models.entities.BookEntity;
 import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.repositories.PublisherRepository;
@@ -29,7 +29,7 @@ public class BookService {
     //CREATE
     @Transactional
     public BookResponseDTO create(BookRequestDTO dto){
-        Book book = new Book();
+        BookEntity bookEntity = new BookEntity();
 
         Publisher publisher = publisherRepository.findByNameIgnoreCase(dto.publisherName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Editora não encontrada"));
@@ -39,26 +39,25 @@ public class BookService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Este livro já está cadastrado com esses mesmos dados.");
         }
 
-        book.setTitle(dto.title());
-        book.setAuthor(dto.author());
-        book.setReleaseYear(dto.releaseYear());
-        book.setPublisher(publisher);
-        book.setTotalQuantity(dto.totalQuantity());
+        bookEntity.setTitle(dto.title());
+        bookEntity.setAuthor(dto.author());
+        bookEntity.setReleaseYear(dto.releaseYear());
+        bookEntity.setPublisher(publisher);
+        bookEntity.setTotalQuantity(dto.totalQuantity());
 
         LocalDateTime now = LocalDateTime.now();
-        book.setCreatedAt(now);
-        book.setUpdatedAt(now);
+        bookEntity.setCreatedAt(now);
+        bookEntity.setUpdatedAt(now);
 
-        book.setBorrowedQuantity(0);
+        bookEntity.setBorrowedQuantity(0);
 
-        Book saved = bookRepository.save(book);
+        BookEntity saved = bookRepository.save(bookEntity);
 
         return toResponseDTO(saved);
 
     }
 
     // READ
-    @Transactional
     public List<BookResponseDTO> findAll(){
         return bookRepository.findAll()
                 .stream()
@@ -67,52 +66,51 @@ public class BookService {
     }
 
     // READ BY ID
-    @Transactional
     public BookResponseDTO findById(UUID id){
-        Book book = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        BookEntity bookEntity = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
 
-        return toResponseDTO(book);
+        return toResponseDTO(bookEntity);
     }
 
     // UPDATE
     @Transactional
     public BookResponseDTO update(UUID id, BookUpdateDTO dto){
-        Book book = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        BookEntity bookEntity = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
 
         if (dto.title() != null){
-            book.setTitle(dto.title());
+            bookEntity.setTitle(dto.title());
         }
         if (dto.author() != null){
-            book.setAuthor(dto.author());
+            bookEntity.setAuthor(dto.author());
         }
         if (dto.releaseYear() != null){
-            book.setAuthor(dto.author());
+            bookEntity.setAuthor(dto.author());
         }
         if (dto.publisherName() != null) {
             Publisher publisher = publisherRepository.findByNameIgnoreCase(dto.publisherName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Editora não encontrada"));
 
-            book.setPublisher(publisher);
+            bookEntity.setPublisher(publisher);
         }
         if (dto.totalQuantity() != null) {
             if (dto.totalQuantity() <= 0) {
                 throw new RuntimeException("A quantidade total deve ser maior que zero.");
             }
-            book.setTotalQuantity(dto.totalQuantity());
+            bookEntity.setTotalQuantity(dto.totalQuantity());
         }
-        Book updated = bookRepository.save(book);
+        BookEntity updated = bookRepository.save(bookEntity);
         return toResponseDTO(updated);
     }
 
     // DELETE - EM BREVE
 
-    private BookResponseDTO toResponseDTO(Book book) {
+    private BookResponseDTO toResponseDTO(BookEntity bookEntity) {
         return new BookResponseDTO(
-                book.getId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getReleaseYear(),
-                book.getPublisher().getName(),
-                book.getAvailableQuantity()
+                bookEntity.getId(),
+                bookEntity.getTitle(),
+                bookEntity.getAuthor(),
+                bookEntity.getReleaseYear(),
+                bookEntity.getPublisher().getName(),
+                bookEntity.getAvailableQuantity()
         );
     }
 }
