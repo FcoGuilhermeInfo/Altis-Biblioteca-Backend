@@ -3,6 +3,7 @@ package com.altis.library.users.services;
 import com.altis.library.users.models.dtos.UserRequestDTO;
 import com.altis.library.users.models.dtos.UserResponseDTO;
 import com.altis.library.users.models.dtos.UserUpdateDTO;
+import com.altis.library.users.models.entities.UserEntity;
 import com.altis.library.users.mappers.UserMapper;
 import com.altis.library.users.repositories.UserRepository;
 import com.altis.library.shared.exception.ResourceNotFoundException;
@@ -39,11 +40,14 @@ public class UserService {
 
     // READ BY ID
     public UserResponseDTO findById(UUID id) {
-
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+        var user = findEntityById(id);
 
         return userMapper.toResponse(user);
+    }
+
+    public UserEntity findEntityById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
     // UPDATE

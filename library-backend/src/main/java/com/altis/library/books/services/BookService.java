@@ -53,10 +53,18 @@ public class BookService {
 
     // READ BY ID
     public BookResponseDTO findById(UUID id){
-        BookEntity bookEntity = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
+        BookEntity bookEntity = findEntityById(id);
 
         return mapper.toResponse(bookEntity);
+    }
+
+    public BookEntity findEntityById(UUID id) {
+        return bookRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
+    }
+
+    public BookEntity save(BookEntity book) {
+        return bookRepository.save(book);
     }
 
     // UPDATE
