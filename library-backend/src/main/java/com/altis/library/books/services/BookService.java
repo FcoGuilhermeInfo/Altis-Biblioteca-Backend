@@ -6,6 +6,7 @@ import com.altis.library.books.models.dtos.BookUpdateDTO;
 import com.altis.library.books.mappers.BookMapper;
 import com.altis.library.books.models.entities.BookEntity;
 import com.altis.library.books.repositories.BookRepository;
+import com.altis.library.loans.repositories.LoanRepository;
 import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.services.PublisherService;
 import com.altis.library.shared.exception.ConflictException;
@@ -19,11 +20,14 @@ import java.util.UUID;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
+    private final LoanRepository loanRepository;
     private final PublisherService publisherService;
     private final BookMapper mapper;
 
-    public BookService(BookRepository bookRepository, PublisherService publisherService, BookMapper mapper) {
+    public BookService(BookRepository bookRepository, LoanRepository loanRepository,
+                       PublisherService publisherService, BookMapper mapper) {
         this.bookRepository = bookRepository;
+        this.loanRepository = loanRepository;
         this.publisherService = publisherService;
         this.mapper = mapper;
     }
@@ -87,5 +91,16 @@ public class BookService {
         return mapper.toResponse(updated);
     }
 
-    // DELETE - EM BREVE
+    // DELETE
+    @Transactional
+    public void delete(UUID id) {
+        BookEntity book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", id));
+
+        if (loanRepository.existsByBookId(id)) {
+            throw new ConflictException("Não é possível excluir um livro que possui empréstimos relacionados.");
+        }
+
+        bookRepository.delete(book);
+    }
 }

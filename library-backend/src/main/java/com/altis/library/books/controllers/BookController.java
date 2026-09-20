@@ -39,4 +39,9 @@ public class BookController {
         return bookService.update(id, dto);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable UUID id) {
+        bookService.delete(id);
+    }
+
 }
