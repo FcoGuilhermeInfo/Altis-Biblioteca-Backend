@@ -14,6 +14,8 @@ public interface LoanRepository extends JpaRepository<LoanEntity, UUID> {
 
     boolean existsByUserIdAndReturnedAtIsNull(UUID userId);
 
+    boolean existsByBookId(UUID bookId);
+
     List<LoanEntity> findByReturnedAtIsNull();
 
     List<LoanEntity> findAllByOrderByBorrowedAtDesc();
