@@ -1,10 +1,12 @@
 package com.altis.library.publishers.services;
 
+import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.publishers.mappers.PublisherMapper;
 import com.altis.library.publishers.models.dtos.PublisherRequestDTO;
 import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
 import com.altis.library.publishers.models.entities.Publisher;
 import com.altis.library.publishers.repositories.PublisherRepository;
+import com.altis.library.shared.exception.ConflictException;
 import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
+    private final BookRepository bookRepository;
     private final PublisherMapper publisherMapper;
 
     public Publisher findByName(String name) {
@@ -59,6 +62,12 @@ public class PublisherService {
     public void delete(UUID id) {
         Publisher publisher = publisherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Publisher", id));
+
+        if (bookRepository.existsByPublisherId(id)) {
+            throw new ConflictException(
+                    "Não é possível excluir uma editora que possui livros relacionados."
+            );
+        }
 
         publisherRepository.delete(publisher);
     }
