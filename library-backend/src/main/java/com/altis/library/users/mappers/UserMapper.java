@@ -44,7 +44,6 @@ public class UserMapper {
         entity.setPhone(dto.phone());
         entity.setAddress(dto.address());
         entity.setEmail(dto.email());
-        entity.setPassword(dto.password());
         entity.setAdmin(false);
         entity.setActive(true);
         entity.setCreatedAt(now);
