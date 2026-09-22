@@ -78,7 +78,6 @@ public class LoanService {
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
-    @Transactional
     public List<LoanResponseDTO> findAll() {
         return loanMapper.toResponseList(loanRepository.findAllByOrderByBorrowedAtDesc());
     }

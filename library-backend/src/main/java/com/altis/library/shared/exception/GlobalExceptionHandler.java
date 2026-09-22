@@ -2,6 +2,8 @@ package com.altis.library.shared.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +28,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessExceptionException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(BusinessExceptionException exception) {
         return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorized(UnauthorizedException exception) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadCredentials(BadCredentialsException exception) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos.");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthentication(AuthenticationException exception) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

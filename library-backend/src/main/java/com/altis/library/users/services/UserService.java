@@ -8,6 +8,7 @@ import com.altis.library.users.mappers.UserMapper;
 import com.altis.library.users.repositories.UserRepository;
 import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,16 +19,20 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // CREATE
     @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
         var user = userMapper.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(dto.password()));
         var savedUser = userRepository.save(user);
 
         return userMapper.toResponse(savedUser);
