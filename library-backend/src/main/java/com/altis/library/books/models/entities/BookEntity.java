@@ -1,6 +1,6 @@
 package com.altis.library.books.models.entities;
 
-import com.altis.library.publishers.models.entities.Publisher;
+import com.altis.library.publishers.models.entities.PublisherEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public class BookEntity implements Serializable {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_books_publisher")
     )
-    private Publisher publisher;
+    private PublisherEntity publisherEntity;
 
     @Column(name = "total_quantity", nullable = false)
     private Integer totalQuantity;

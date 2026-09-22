@@ -2,7 +2,7 @@ package com.altis.library.publishers.mappers;
 
 import com.altis.library.publishers.models.dtos.PublisherRequestDTO;
 import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
-import com.altis.library.publishers.models.entities.Publisher;
+import com.altis.library.publishers.models.entities.PublisherEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class PublisherMapper {
 
-    public PublisherResponseDTO toResponse(Publisher entity) {
+    public PublisherResponseDTO toResponse(PublisherEntity entity) {
         return new PublisherResponseDTO(
                 entity.getId(),
                 entity.getName(),
@@ -23,16 +23,16 @@ public class PublisherMapper {
         );
     }
 
-    public List<PublisherResponseDTO> toResponseList(List<Publisher> entities) {
+    public List<PublisherResponseDTO> toResponseList(List<PublisherEntity> entities) {
         return entities.stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public Publisher toEntity(PublisherRequestDTO dto) {
+    public PublisherEntity toEntity(PublisherRequestDTO dto) {
         LocalDateTime now = LocalDateTime.now();
 
-        Publisher entity = new Publisher();
+        PublisherEntity entity = new PublisherEntity();
         entity.setName(dto.name());
         entity.setEmail(dto.email());
         entity.setPhone(dto.phone());
@@ -43,7 +43,7 @@ public class PublisherMapper {
         return entity;
     }
 
-    public void applyUpdate(PublisherRequestDTO dto, Publisher entity) {
+    public void applyUpdate(PublisherRequestDTO dto, PublisherEntity entity) {
         entity.setName(dto.name());
         entity.setEmail(dto.email());
         entity.setPhone(dto.phone());

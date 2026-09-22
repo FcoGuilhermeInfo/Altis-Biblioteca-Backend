@@ -11,7 +11,7 @@ public record LoginRequestDTO(
         String email,
 
         @NotBlank(message = "A senha é obrigatória.")
-        @Schema(example = "JohnDoe@gmail.com")
+        @Schema(example = "senhaforte123")
         String password
 ) {
 }

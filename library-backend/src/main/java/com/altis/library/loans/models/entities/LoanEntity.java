@@ -1,6 +1,7 @@
 package com.altis.library.loans.models.entities;
 
 import com.altis.library.books.models.entities.BookEntity;
+import com.altis.library.loans.models.enums.LoanStatus;
 import com.altis.library.users.models.entities.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,4 +45,8 @@ public class LoanEntity implements Serializable {
 
     @Column(name = "returned_at")
     private LocalDateTime returnedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private LoanStatus status;
 }

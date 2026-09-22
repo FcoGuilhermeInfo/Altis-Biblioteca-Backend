@@ -7,7 +7,7 @@ import com.altis.library.books.mappers.BookMapper;
 import com.altis.library.books.models.entities.BookEntity;
 import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.loans.repositories.LoanRepository;
-import com.altis.library.publishers.models.entities.Publisher;
+import com.altis.library.publishers.models.entities.PublisherEntity;
 import com.altis.library.publishers.services.PublisherService;
 import com.altis.library.shared.exception.ConflictException;
 import com.altis.library.shared.exception.ResourceNotFoundException;
@@ -35,14 +35,14 @@ public class BookService {
     //CREATE
     @Transactional
     public BookResponseDTO create(BookRequestDTO dto){
-        Publisher publisher = publisherService.findByName(dto.publisherName());
+        PublisherEntity publisherEntity = publisherService.findByName(dto.publisherName());
 
-        if (bookRepository.existsByTitleAndAuthorAndReleaseYearAndPublisher_Id(
-                dto.title(), dto.author(), dto.releaseYear(), publisher.getId())) {
+        if (bookRepository.existsByTitleAndAuthorAndReleaseYearAndPublisherEntity_Id(
+                dto.title(), dto.author(), dto.releaseYear(), publisherEntity.getId())) {
             throw new ConflictException("Este livro já está cadastrado com esses mesmos dados.");
         }
 
-        BookEntity bookEntity = mapper.toEntity(dto, publisher);
+        BookEntity bookEntity = mapper.toEntity(dto, publisherEntity);
 
         BookEntity saved = bookRepository.save(bookEntity);
 
@@ -81,9 +81,9 @@ public class BookService {
             throw new RuntimeException("A quantidade total deve ser maior que zero.");
         }
         if (dto.publisherName() != null) {
-            Publisher publisher = publisherService.findByName(dto.publisherName());
+            PublisherEntity publisherEntity = publisherService.findByName(dto.publisherName());
 
-            bookEntity.setPublisher(publisher);
+            bookEntity.setPublisherEntity(publisherEntity);
         }
         mapper.applyUpdate(dto, bookEntity);
 
