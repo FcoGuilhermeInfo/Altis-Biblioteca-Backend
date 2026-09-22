@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Publisher implements Serializable {
+public class PublisherEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

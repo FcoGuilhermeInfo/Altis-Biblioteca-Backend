@@ -7,6 +7,7 @@ import com.altis.library.loans.models.dtos.LoanRequestDTO;
 import com.altis.library.loans.models.dtos.LoanResponseDTO;
 import com.altis.library.loans.models.dtos.LoanUpdateDTO;
 import com.altis.library.loans.models.entities.LoanEntity;
+import com.altis.library.loans.models.enums.LoanStatus;
 import com.altis.library.loans.repositories.LoanRepository;
 import com.altis.library.shared.exception.BusinessExceptionException;
 import com.altis.library.shared.exception.ResourceNotFoundException;
@@ -55,7 +56,7 @@ public class LoanService {
         book.setUpdatedAt(LocalDateTime.now());
         bookService.save(book);
 
-        LoanEntity loan = loanMapper.toEntity(new LoanEntity(), book, user);
+        LoanEntity loan = loanMapper.toEntity(new LoanEntity(), book, user, dto.dueDate());
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
@@ -75,19 +76,36 @@ public class LoanService {
         bookService.save(book);
 
         loan.setReturnedAt(dto.returnedAt());
+        loan.setStatus(LoanStatus.RETURNED);
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
     public List<LoanResponseDTO> findAll() {
-        return loanMapper.toResponseList(loanRepository.findAllByOrderByBorrowedAtDesc());
+        List<LoanEntity> loans = loanRepository.findAllByOrderByBorrowedAtDesc();
+        updateOverdueStatuses(loans);
+        return loanMapper.toResponseList(loans);
     }
 
     public LoanResponseDTO findById(UUID id) {
-        return loanMapper.toResponse(findEntity(id));
+        LoanEntity loan = findEntity(id);
+        updateOverdueStatus(loan);
+        return loanMapper.toResponse(loan);
     }
 
     private LoanEntity findEntity(UUID id) {
         return loanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan", id));
+    }
+
+    private void updateOverdueStatuses(List<LoanEntity> loans) {
+        loans.forEach(this::updateOverdueStatus);
+    }
+
+    private void updateOverdueStatus(LoanEntity loan) {
+        if (loan.getStatus() == LoanStatus.BORROWED
+                && loan.getDueDate().isBefore(LocalDateTime.now())) {
+            loan.setStatus(LoanStatus.OVERDUE);
+            loanRepository.save(loan);
+        }
     }
 }

@@ -15,10 +15,10 @@ import java.util.UUID;
 public interface BookRepository extends JpaRepository<BookEntity, UUID> {
 
 
-    boolean existsByTitleAndAuthorAndReleaseYearAndPublisher_Id(
+    boolean existsByTitleAndAuthorAndReleaseYearAndPublisherEntity_Id(
             String title, String author, Short releaseYear, UUID publisherId);
 
-    boolean existsByPublisherId(UUID publisherId);
+    boolean existsByPublisherEntity_Id(UUID publisherId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select book from BookEntity book where book.id = :id")

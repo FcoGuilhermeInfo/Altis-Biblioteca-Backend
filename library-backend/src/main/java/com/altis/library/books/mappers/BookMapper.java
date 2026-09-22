@@ -4,7 +4,7 @@ import com.altis.library.books.models.dtos.BookRequestDTO;
 import com.altis.library.books.models.dtos.BookResponseDTO;
 import com.altis.library.books.models.dtos.BookUpdateDTO;
 import com.altis.library.books.models.entities.BookEntity;
-import com.altis.library.publishers.models.entities.Publisher;
+import com.altis.library.publishers.models.entities.PublisherEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class BookMapper {
                 entity.getTitle(),
                 entity.getAuthor(),
                 entity.getReleaseYear(),
-                entity.getPublisher().getName(),
+                entity.getPublisherEntity().getName(),
                 entity.getTotalQuantity() - entity.getBorrowedQuantity()
         );
     }
@@ -30,14 +30,14 @@ public class BookMapper {
                 .toList();
     }
 
-    public BookEntity toEntity(BookRequestDTO dto, Publisher publisher) {
+    public BookEntity toEntity(BookRequestDTO dto, PublisherEntity publisherEntity) {
         LocalDateTime now = LocalDateTime.now();
 
         BookEntity entity = new BookEntity();
         entity.setTitle(dto.title());
         entity.setAuthor(dto.author());
         entity.setReleaseYear(dto.releaseYear());
-        entity.setPublisher(publisher);
+        entity.setPublisherEntity(publisherEntity);
         entity.setTotalQuantity(dto.totalQuantity());
         entity.setBorrowedQuantity(0);
         entity.setCreatedAt(now);
@@ -50,7 +50,7 @@ public class BookMapper {
         applyUpdate(dto, entity, null);
     }
 
-    public void applyUpdate(BookUpdateDTO dto, BookEntity entity, Publisher publisher) {
+    public void applyUpdate(BookUpdateDTO dto, BookEntity entity, PublisherEntity publisherEntity) {
         if (dto.title() != null) {
             entity.setTitle(dto.title());
         }
@@ -60,8 +60,8 @@ public class BookMapper {
         if (dto.releaseYear() != null) {
             entity.setReleaseYear(dto.releaseYear());
         }
-        if (dto.publisherName() != null && publisher != null) {
-            entity.setPublisher(publisher);
+        if (dto.publisherName() != null && publisherEntity != null) {
+            entity.setPublisherEntity(publisherEntity);
         }
         if (dto.totalQuantity() != null) {
             entity.setTotalQuantity(dto.totalQuantity());
