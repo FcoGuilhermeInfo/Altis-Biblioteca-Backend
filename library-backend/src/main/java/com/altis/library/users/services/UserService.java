@@ -10,6 +10,7 @@ import com.altis.library.users.repositories.UserRepository;
 import com.altis.library.shared.exception.ResourceNotFoundException;
 import com.altis.library.shared.exception.UnauthorizedException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -90,5 +91,30 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.newPassword()));
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    // ACTIVATE USER
+    @Transactional
+    public UserResponseDTO activateUser(UUID id) {
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+        user.setActive(true);
+        user.setUpdatedAt(LocalDateTime.now());
+
+        UserEntity updated = userRepository.save(user);
+
+        return userMapper.toResponse(updated);
+    }
+
+    // INACTIVATE USER
+    @Transactional
+    public UserResponseDTO inactivateUser(UUID id) {
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+        user.setActive(false);
+        user.setUpdatedAt(LocalDateTime.now());
+
+        UserEntity updated = userRepository.save(user);
+
+        return userMapper.toResponse(updated);
     }
 }

@@ -28,6 +28,7 @@ public class UserController {
         return userService.create(dto);
     }
 
+    // CHANGE PASSWORD
     @PostMapping("/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@Valid @RequestBody ChangePasswordRequestDTO dto) {
@@ -50,6 +51,18 @@ public class UserController {
     @PatchMapping("/{id}")
     public UserResponseDTO update(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO dto){
         return userService.update(id,dto);
+    }
+
+    // ACTIVATE
+    @PatchMapping("/{id}/activate")
+    public UserResponseDTO activate(@PathVariable UUID id){
+        return userService.activateUser(id);
+    }
+
+    // INACTIVATE
+    @PatchMapping("/{id}/inactivate")
+    public UserResponseDTO inactivate(@PathVariable UUID id){
+        return userService.inactivateUser(id);
     }
 
     // DELETE
