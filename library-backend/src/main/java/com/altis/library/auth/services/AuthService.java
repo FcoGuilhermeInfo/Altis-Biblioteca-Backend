@@ -45,6 +45,7 @@ public class AuthService {
                 ));
 
         return new LoginResponseDTO(
+                user.getId(),
                 jwtService.generateToken(user),
                 "Bearer",
                 expiration
