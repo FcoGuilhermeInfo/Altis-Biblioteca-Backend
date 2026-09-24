@@ -2,6 +2,8 @@ package com.altis.library.books.repositories;
 
 import com.altis.library.books.models.entities.BookEntity;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +16,7 @@ import java.util.UUID;
 @Repository
 public interface BookRepository extends JpaRepository<BookEntity, UUID> {
 
+    Page<BookEntity> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 
     boolean existsByTitleAndAuthorAndReleaseYearAndPublisherEntity_Id(
             String title, String author, Short releaseYear, UUID publisherId);

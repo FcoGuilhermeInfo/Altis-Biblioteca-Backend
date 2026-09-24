@@ -12,6 +12,8 @@ import com.altis.library.shared.exception.UnauthorizedException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,8 +45,11 @@ public class UserService {
     }
 
     // READ ALL
-    public List<UserResponseDTO> findAll() {
-        return userMapper.toResponseList(userRepository.findAll());
+    public Page<UserResponseDTO> findAll(String search, Pageable pageable) {
+        Page<UserEntity> users = search == null || search.isBlank()
+                ? userRepository.findByAdminFalse(pageable)
+                : userRepository.findByAdminFalseAndNameContainingIgnoreCase(search.trim(), pageable);
+        return users.map(userMapper::toResponse);
     }
 
     // READ BY ID
@@ -65,6 +70,7 @@ public class UserService {
 
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
+        ensureNotAdmin(user);
 
         userMapper.applyUpdate(dto, user);
 
@@ -72,15 +78,6 @@ public class UserService {
         return userMapper.toResponse(updated);
     }
 
-    // DELETE
-    @Transactional
-    public void delete(UUID id) {
-
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", id));
-
-        userRepository.delete(user);
-    }
 
     // CHANGE PASSWORD
     @Transactional
@@ -97,6 +94,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO activateUser(UUID id) {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+        ensureNotAdmin(user);
 
         user.setActive(true);
         user.setUpdatedAt(LocalDateTime.now());
@@ -110,11 +108,18 @@ public class UserService {
     @Transactional
     public UserResponseDTO inactivateUser(UUID id) {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+        ensureNotAdmin(user);
         user.setActive(false);
         user.setUpdatedAt(LocalDateTime.now());
 
         UserEntity updated = userRepository.save(user);
 
         return userMapper.toResponse(updated);
+    }
+
+    private void ensureNotAdmin(UserEntity user) {
+        if (user.isAdmin()) {
+            throw new UnauthorizedException("Usuários administradores não podem ser editados ou inativados.");
+        }
     }
 }

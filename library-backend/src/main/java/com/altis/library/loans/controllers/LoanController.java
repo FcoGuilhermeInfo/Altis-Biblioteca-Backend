@@ -6,9 +6,10 @@ import com.altis.library.loans.models.dtos.LoanUpdateDTO;
 import com.altis.library.loans.services.LoanService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/loans")
@@ -25,8 +26,11 @@ public class LoanController {
     }
 
     @GetMapping
-    public List<LoanResponseDTO> findAll() {
-        return loanService.findAll();
+    public Page<LoanResponseDTO> findAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return loanService.findAll(search, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")
