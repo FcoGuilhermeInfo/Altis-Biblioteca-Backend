@@ -8,9 +8,10 @@ import com.altis.library.users.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/users")
@@ -37,8 +38,11 @@ public class UserController {
 
     // READ
     @GetMapping
-    public List<UserResponseDTO> findAll(){
-        return userService.findAll();
+    public Page<UserResponseDTO> findAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return userService.findAll(search, PageRequest.of(page, size));
     }
 
     // READ BY ID
@@ -65,11 +69,6 @@ public class UserController {
         return userService.inactivateUser(id);
     }
 
-    // DELETE
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id){
-        userService.delete(id);
-    }
 
 
 

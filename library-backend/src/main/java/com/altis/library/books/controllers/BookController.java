@@ -6,9 +6,10 @@ import com.altis.library.books.models.dtos.BookUpdateDTO;
 import com.altis.library.books.services.BookService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/books")
@@ -25,8 +26,11 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookResponseDTO> findAll(){
-        return bookService.findAll();
+    public Page<BookResponseDTO> findAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return bookService.findAll(search, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")

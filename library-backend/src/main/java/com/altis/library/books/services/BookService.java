@@ -13,6 +13,8 @@ import com.altis.library.shared.exception.ConflictException;
 import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,8 +53,11 @@ public class BookService {
     }
 
     // READ
-    public List<BookResponseDTO> findAll(){
-        return mapper.toResponseList(bookRepository.findAll());
+    public Page<BookResponseDTO> findAll(String search, Pageable pageable){
+        Page<BookEntity> books = search == null || search.isBlank()
+                ? bookRepository.findAll(pageable)
+                : bookRepository.findByTitleContainingIgnoreCase(search.trim(), pageable);
+        return books.map(mapper::toResponse);
     }
 
     // READ BY ID

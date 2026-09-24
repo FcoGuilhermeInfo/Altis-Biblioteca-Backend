@@ -15,6 +15,8 @@ import com.altis.library.users.models.entities.UserEntity;
 import com.altis.library.users.services.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,10 +82,12 @@ public class LoanService {
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
-    public List<LoanResponseDTO> findAll() {
-        List<LoanEntity> loans = loanRepository.findAllByOrderByBorrowedAtDesc();
+    public Page<LoanResponseDTO> findAll(String search, Pageable pageable) {
+        Page<LoanEntity> loans = search == null || search.isBlank()
+                ? loanRepository.findAllByOrderByBorrowedAtDesc(pageable)
+                : loanRepository.search(search.trim(), pageable);
         updateOverdueStatuses(loans);
-        return loanMapper.toResponseList(loans);
+        return loans.map(loanMapper::toResponse);
     }
 
     public LoanResponseDTO findById(UUID id) {
@@ -97,7 +101,7 @@ public class LoanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Loan", id));
     }
 
-    private void updateOverdueStatuses(List<LoanEntity> loans) {
+    private void updateOverdueStatuses(Page<LoanEntity> loans) {
         loans.forEach(this::updateOverdueStatus);
     }
 

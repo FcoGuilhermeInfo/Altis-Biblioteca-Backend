@@ -5,9 +5,10 @@ import com.altis.library.publishers.models.dtos.PublisherResponseDTO;
 import com.altis.library.publishers.services.PublisherService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/publishers")
@@ -24,8 +25,11 @@ public class PublisherController {
     }
 
     @GetMapping
-    public List<PublisherResponseDTO> findAll(){
-        return publisherService.findAll();
+    public Page<PublisherResponseDTO> findAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return publisherService.findAll(search, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")

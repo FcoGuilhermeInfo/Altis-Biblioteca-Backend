@@ -11,6 +11,8 @@ import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,8 +45,11 @@ public class PublisherService {
         return publisherMapper.toResponse(publisherEntity);
     }
 
-    public List<PublisherResponseDTO> findAll() {
-        return publisherMapper.toResponseList(publisherRepository.findAll());
+    public Page<PublisherResponseDTO> findAll(String search, Pageable pageable) {
+        Page<PublisherEntity> publishers = search == null || search.isBlank()
+                ? publisherRepository.findAll(pageable)
+                : publisherRepository.findByNameContainingIgnoreCase(search.trim(), pageable);
+        return publishers.map(publisherMapper::toResponse);
     }
 
     @Transactional
