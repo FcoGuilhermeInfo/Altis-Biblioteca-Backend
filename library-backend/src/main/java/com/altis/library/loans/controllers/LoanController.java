@@ -27,10 +27,18 @@ public class LoanController {
 
     @GetMapping
     public Page<LoanResponseDTO> findAll(
-            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return loanService.findAll(search, PageRequest.of(page, size));
+    }
+
+    @GetMapping("/history")
+    public Page<LoanResponseDTO> findHistory(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return loanService.findHistory(search, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")

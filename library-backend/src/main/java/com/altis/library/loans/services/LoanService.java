@@ -82,11 +82,16 @@ public class LoanService {
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
+    @Transactional
     public Page<LoanResponseDTO> findAll(String search, Pageable pageable) {
-        Page<LoanEntity> loans = search == null || search.isBlank()
-                ? loanRepository.findAllByOrderByBorrowedAtDesc(pageable)
-                : loanRepository.search(search.trim(), pageable);
-        updateOverdueStatuses(loans);
+        loanRepository.markOverdueLoans(LocalDateTime.now());
+        Page<LoanEntity> loans = loanRepository.findActiveLoans(normalizeSearch(search), pageable);
+        return loans.map(loanMapper::toResponse);
+    }
+
+    @Transactional
+    public Page<LoanResponseDTO> findHistory(String search, Pageable pageable) {
+        Page<LoanEntity> loans = loanRepository.findReturnedLoans(normalizeSearch(search), pageable);
         return loans.map(loanMapper::toResponse);
     }
 
@@ -101,8 +106,8 @@ public class LoanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Loan", id));
     }
 
-    private void updateOverdueStatuses(Page<LoanEntity> loans) {
-        loans.forEach(this::updateOverdueStatus);
+    private String normalizeSearch(String search) {
+        return search == null || search.isBlank() ? "" : search.trim();
     }
 
     private void updateOverdueStatus(LoanEntity loan) {
