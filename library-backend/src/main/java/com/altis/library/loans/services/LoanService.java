@@ -30,7 +30,6 @@ public class LoanService {
     private final BookService bookService;
     private final UserService userService;
     private final LoanMapper loanMapper;
-
     public LoanService(LoanRepository loanRepository, BookService bookService,
                        UserService userService, LoanMapper loanMapper) {
         this.loanRepository = loanRepository;
