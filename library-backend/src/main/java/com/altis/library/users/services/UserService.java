@@ -11,6 +11,7 @@ import com.altis.library.shared.exception.ResourceNotFoundException;
 import com.altis.library.shared.exception.UnauthorizedException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +63,17 @@ public class UserService {
     public UserEntity findEntityById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    public UserEntity findByAuthentication(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null
+                || authentication.getName().isBlank()) {
+            throw new ResourceNotFoundException("User", "authenticated principal");
+        }
+
+        return userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User", authentication.getName()));
     }
 
     // UPDATE
