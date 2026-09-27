@@ -5,7 +5,6 @@ import com.altis.library.books.services.BookService;
 import com.altis.library.loans.mappers.LoanMapper;
 import com.altis.library.loans.models.dtos.LoanRequestDTO;
 import com.altis.library.loans.models.dtos.LoanResponseDTO;
-import com.altis.library.loans.models.dtos.LoanUpdateDTO;
 import com.altis.library.loans.models.entities.LoanEntity;
 import com.altis.library.loans.models.enums.LoanStatus;
 import com.altis.library.loans.repositories.LoanRepository;
@@ -62,7 +61,7 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanResponseDTO update(UUID id, LoanUpdateDTO dto) {
+    public LoanResponseDTO update(UUID id) {
         LoanEntity loan = findEntity(id);
         if (loan.getReturnedAt() != null) {
             throw new BusinessExceptionException("Este empréstimo já foi finalizado.");
@@ -76,7 +75,7 @@ public class LoanService {
         book.setUpdatedAt(LocalDateTime.now());
         bookService.save(book);
 
-        loan.setReturnedAt(dto.returnedAt());
+        loan.setReturnedAt(LocalDateTime.now());
         loan.setStatus(LoanStatus.RETURNED);
         return loanMapper.toResponse(loanRepository.save(loan));
     }
