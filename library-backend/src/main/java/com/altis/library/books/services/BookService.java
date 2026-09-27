@@ -9,6 +9,7 @@ import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.loans.repositories.LoanRepository;
 import com.altis.library.publishers.models.entities.PublisherEntity;
 import com.altis.library.publishers.services.PublisherService;
+import com.altis.library.shared.exception.BusinessExceptionException;
 import com.altis.library.shared.exception.ConflictException;
 import com.altis.library.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
@@ -83,7 +84,11 @@ public class BookService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book", id));
 
         if (dto.totalQuantity() != null && dto.totalQuantity() <= 0) {
-            throw new RuntimeException("A quantidade total deve ser maior que zero.");
+            throw new BusinessExceptionException("A quantidade total deve ser maior que zero.");
+        }
+        if (dto.totalQuantity() != null && dto.totalQuantity() < bookEntity.getBorrowedQuantity()) {
+            throw new BusinessExceptionException(
+                    "A quantidade total não pode ser menor que a quantidade de livros emprestados.");
         }
         if (dto.publisherName() != null) {
             PublisherEntity publisherEntity = publisherService.findByName(dto.publisherName());

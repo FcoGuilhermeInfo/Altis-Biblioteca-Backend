@@ -5,6 +5,8 @@ import com.altis.library.books.models.dtos.BookResponseDTO;
 import com.altis.library.books.models.dtos.BookUpdateDTO;
 import com.altis.library.books.services.BookService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.PageRequest;
 
@@ -28,9 +30,9 @@ public class BookController {
     @GetMapping
     public Page<BookResponseDTO> findAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return bookService.findAll(search, PageRequest.of(page, size));
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size){
+        return bookService.findAll(search, PageRequest.of(page - 1, size));
     }
 
     @GetMapping("/{id}")

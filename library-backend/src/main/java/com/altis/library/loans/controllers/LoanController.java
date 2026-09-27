@@ -2,9 +2,10 @@ package com.altis.library.loans.controllers;
 
 import com.altis.library.loans.models.dtos.LoanRequestDTO;
 import com.altis.library.loans.models.dtos.LoanResponseDTO;
-import com.altis.library.loans.models.dtos.LoanUpdateDTO;
 import com.altis.library.loans.services.LoanService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.PageRequest;
 
@@ -28,17 +29,17 @@ public class LoanController {
     @GetMapping
     public Page<LoanResponseDTO> findAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return loanService.findAll(search, PageRequest.of(page, size));
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
+        return loanService.findAll(search, PageRequest.of(page - 1, size));
     }
 
     @GetMapping("/history")
     public Page<LoanResponseDTO> findHistory(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return loanService.findHistory(search, PageRequest.of(page, size));
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
+        return loanService.findHistory(search, PageRequest.of(page - 1, size));
     }
 
     @GetMapping("/{id}")
@@ -47,7 +48,7 @@ public class LoanController {
     }
 
     @PatchMapping("/{id}")
-    public LoanResponseDTO update(@PathVariable UUID id, @Valid @RequestBody LoanUpdateDTO dto) {
-        return loanService.update(id, dto);
+    public LoanResponseDTO update(@PathVariable UUID id) {
+        return loanService.update(id);
     }
 }

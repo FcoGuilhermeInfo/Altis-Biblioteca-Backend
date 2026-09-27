@@ -5,6 +5,7 @@ import com.altis.library.auth.dtos.LoginResponseDTO;
 import com.altis.library.shared.exception.UnauthorizedException;
 import com.altis.library.users.models.entities.UserEntity;
 import com.altis.library.users.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -21,7 +22,7 @@ public class AuthService {
     public AuthService(AuthenticationManager authenticationManager,
                        UserRepository userRepository,
                        JwtService jwtService,
-                       @org.springframework.beans.factory.annotation.Value("${jwt.expiration}") long expiration) {
+                       @Value("${jwt.expiration}") long expiration) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
