@@ -40,9 +40,9 @@ public class UserController {
     @GetMapping
     public Page<UserResponseDTO> findAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size){
-        return userService.findAll(search, PageRequest.of(page, size));
+        return userService.findAll(search, PageRequest.of(page - 1, size));
     }
 
     // READ BY ID
