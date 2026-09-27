@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 public class JwtService {
@@ -38,6 +39,40 @@ public class JwtService {
                 .setExpiration(expiresAt)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String generatePasswordResetToken(UserEntity user, long tokenExpiration) {
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + tokenExpiration);
+
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .claim("userId", user.getId().toString())
+                .claim("purpose", "password-reset")
+                .claim("passwordUpdatedAt", user.getUpdatedAt().toString())
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean isPasswordResetTokenValid(String token, UserEntity user) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
+
+        try {
+            Claims claims = extractAllClaims(token);
+            return "password-reset".equals(claims.get("purpose", String.class))
+                    && user.getId().toString().equals(claims.get("userId", String.class))
+                    && user.getEmail().equals(claims.getSubject())
+                    && Objects.equals(
+                            user.getUpdatedAt().toString(),
+                            claims.get("passwordUpdatedAt", String.class)
+                    );
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException exception) {
+            return false;
+        }
     }
 
     public String extractUsername(String token) {

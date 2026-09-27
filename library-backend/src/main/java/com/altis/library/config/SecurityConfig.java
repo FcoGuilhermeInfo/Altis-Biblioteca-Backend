@@ -47,8 +47,6 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/change-password")
-                        .hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/users")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/{id}")
