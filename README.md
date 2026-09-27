@@ -2,16 +2,20 @@
 
 ## Technology Stack
 
-- Java 17
-- Spring Boot 3.4.5
-- Oracle Database 21c Express Edition
+- Java 25
+- Spring Boot 4.1.1
+- PostgreSQL
 - Flyway
+- Spring Data JPA
+- Spring Security
+- Spring MVC
+- Jakarta Bean Validation
+- JWT (JJWT)
+- SpringDoc OpenAPI
 - Project Lombok
-- SpringDoc
-- JWT
-- Docker
 
 ## Prerequisites
 
-- JDK 17
-- Oracle Database
+- JDK 25
+- PostgreSQL
+- Maven (or the included Maven Wrapper)
