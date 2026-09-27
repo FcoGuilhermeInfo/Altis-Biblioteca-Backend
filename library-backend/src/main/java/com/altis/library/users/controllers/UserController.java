@@ -5,6 +5,8 @@ import com.altis.library.users.models.dtos.UserResponseDTO;
 import com.altis.library.users.models.dtos.UserUpdateDTO;
 import com.altis.library.users.services.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.PageRequest;
@@ -32,8 +34,8 @@ public class UserController {
     @GetMapping
     public Page<UserResponseDTO> findAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size){
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size){
         return userService.findAll(search, PageRequest.of(page - 1, size));
     }
 
