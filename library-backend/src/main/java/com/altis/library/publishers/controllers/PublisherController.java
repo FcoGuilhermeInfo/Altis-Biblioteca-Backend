@@ -27,9 +27,9 @@ public class PublisherController {
     @GetMapping
     public Page<PublisherResponseDTO> findAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size){
-        return publisherService.findAll(search, PageRequest.of(page, size));
+        return publisherService.findAll(search, PageRequest.of(page - 1, size));
     }
 
     @GetMapping("/{id}")
