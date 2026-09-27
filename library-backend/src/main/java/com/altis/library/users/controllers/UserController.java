@@ -3,7 +3,6 @@ package com.altis.library.users.controllers;
 import com.altis.library.users.models.dtos.UserRequestDTO;
 import com.altis.library.users.models.dtos.UserResponseDTO;
 import com.altis.library.users.models.dtos.UserUpdateDTO;
-import com.altis.library.users.models.dtos.ChangePasswordRequestDTO;
 import com.altis.library.users.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -27,13 +26,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO create(@Valid @RequestBody UserRequestDTO dto) {
         return userService.create(dto);
-    }
-
-    // CHANGE PASSWORD
-    @PostMapping("/change-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@Valid @RequestBody ChangePasswordRequestDTO dto) {
-        userService.changePassword(dto);
     }
 
     // READ
