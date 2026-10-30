@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record ResetPasswordRequestDTO(
         @NotBlank(message = "O token é obrigatório.")
-        @Size(max = 128, message = "O token informado é inválido.")
+        @Size(message = "O token informado é inválido.")
         @Schema(example = "token-recebido-no-primeiro-endpoint")
         String token,
 
