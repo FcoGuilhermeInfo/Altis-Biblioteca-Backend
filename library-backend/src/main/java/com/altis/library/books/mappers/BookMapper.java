@@ -13,16 +13,22 @@ import java.util.List;
 @Component
 public class BookMapper {
 
+   
     public BookResponseDTO toResponse(BookEntity entity) {
         return new BookResponseDTO(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getAuthor(),
-                entity.getReleaseYear(),
-                entity.getPublisherEntity().getName(),
-                entity.getTotalQuantity() - entity.getBorrowedQuantity()
+            entity.getId(),
+            entity.getTitle(),
+            entity.getAuthor(),
+            entity.getReleaseYear(),
+            entity.getPublisherEntity().getName(),
+            entity.getTotalQuantity(),
+            entity.getTotalQuantity() - entity.getBorrowedQuantity(),
+            entity.getBorrowedQuantity(),
+            entity.getCreatedAt(),
+            entity.getUpdatedAt()
         );
     }
+
 
     public List<BookResponseDTO> toResponseList(List<BookEntity> entities) {
         return entities.stream()
