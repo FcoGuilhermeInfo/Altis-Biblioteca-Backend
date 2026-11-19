@@ -3,9 +3,7 @@ package com.altis.library.config;
 
 import com.altis.library.auth.filters.JwtAuthenticationFilter;
 import com.altis.library.auth.services.CustomUserDetailsService;
-
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -65,6 +63,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.PATCH, "/users/me/password")
+                        .hasRole("USER")
+
                         .requestMatchers(HttpMethod.GET, "/users/{id}")
                         .hasAnyRole("ADMIN", "USER")
 
@@ -93,7 +94,6 @@ public class SecurityConfig {
                         .authenticated()
                 )
                 .exceptionHandling(exception -> exception
-
                         .authenticationEntryPoint(
                                 (request, response, authException) -> {
                                     response.sendError(
@@ -101,7 +101,6 @@ public class SecurityConfig {
                                     );
                                 }
                         )
-
                         .accessDeniedHandler(
                                 (request, response, accessDeniedException) -> {
                                     response.sendError(
